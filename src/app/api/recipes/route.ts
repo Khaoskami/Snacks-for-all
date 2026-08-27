@@ -9,17 +9,25 @@ export async function POST(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const body = await req.json();
-  const { title, ingredients, instructions } = body;
+  try {
+    const body = await req.json();
+    const { title, ingredients, instructions } = body;
 
-  const recipe = await prisma.recipe.create({
-    data: {
-      title,
-      ingredients,
-      instructions,
-      userId,
-    },
-  });
+    if (!title || !ingredients || !instructions) {
+      return new NextResponse("Bad Request: Missing required fields", { status: 400 });
+    }
 
-  return NextResponse.json(recipe);
+    const recipe = await prisma.recipe.create({
+      data: {
+        title,
+        ingredients,
+        instructions,
+        userId,
+      },
+    });
+
+    return NextResponse.json(recipe);
+  } catch (error) {
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
 }
