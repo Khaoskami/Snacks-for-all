@@ -24,8 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link href="/upload" className="hidden md:block text-sm font-medium text-slate-600">
                   Upload Recipe
                 </Link>
-                {/* Clerk's built-in profile avatar dropdown */}
-                <UserButton fallbackRedirectUrl="/" />
+                <UserButton />
               </SignedIn>
             </div>
           </nav>
