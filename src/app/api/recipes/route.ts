@@ -1,3 +1,37 @@
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+export async function POST(req: Request) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const { title, ingredients, instructions } = body;
+
+    if (!title || !ingredients || !instructions) {
+      return new NextResponse("Bad Request: Missing required fields", { status: 400 });
+    }
+
+    const recipe = await prisma.recipe.create({
+      data: {
+        title,
+        ingredients,
+        instructions,
+        userId,
+      },
+    });
+
+    return NextResponse.json(recipe);
+  } catch (error) {
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const query = searchParams.get('ingredients');
@@ -8,7 +42,6 @@ export async function GET(req: Request) {
 
   try {
     // 1. Fetch Local Custom Recipes from PostgreSQL
-    // Assumes ingredients is a String[] array in your Prisma schema
     const localRecipes = await prisma.recipe.findMany({
       where: {
         ingredients: {
@@ -23,20 +56,18 @@ export async function GET(req: Request) {
       title: r.title,
       ingredients: r.ingredients,
       instructions: r.instructions,
-      image: null, // Local uploads don't have images based on your schema
+      image: null, 
     }));
 
-    // 2. Fetch External Recipes from TheMealDB (Step 1: Filter by Ingredient)
+    // 2. Fetch External Recipes from TheMealDB
     const mealRes = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${query}`);
     const mealData = await mealRes.json();
     
     let formattedExternal: any[] = [];
 
     if (mealData.meals) {
-      // Limit to 5 to avoid getting rate-limited during Step 2
       const mealsToFetch = mealData.meals.slice(0, 5);
 
-      // Step 2: Fetch detailed instructions and full ingredients for each meal
       const detailPromises = mealsToFetch.map(async (meal: any) => {
         const detailRes = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`);
         const detailData = await detailRes.json();
@@ -46,7 +77,6 @@ export async function GET(req: Request) {
       const detailedMeals = await Promise.all(detailPromises);
 
       formattedExternal = detailedMeals.filter(Boolean).map((meal) => {
-        // TheMealDB returns ingredients as 20 distinct keys (strIngredient1, strIngredient2, etc.)
         const ingredients = [];
         for (let i = 1; i <= 20; i++) {
           const ingredient = meal[`strIngredient${i}`];
@@ -65,7 +95,7 @@ export async function GET(req: Request) {
       });
     }
 
-    // 3. Merge and return a unified response
+    // 3. Merge and return unified response
     return NextResponse.json([...formattedLocal, ...formattedExternal]);
 
   } catch (error) {
