@@ -1,7 +1,21 @@
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import './globals.css';
+import { UserButton } from '@clerk/nextjs';
 
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <nav>
+          {/* Use fallbackRedirectUrl instead of afterSignOutUrl */}
+          <UserButton fallbackRedirectUrl="/" />
+        </nav>
+        {children}
+      </body>
+    </html>
+  );
+}
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
