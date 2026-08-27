@@ -1,8 +1,12 @@
-import { UserButton, ClerkProvider, SignInButton, SignedIn, SignedOut } from '@clerk/nextjs';
+import { UserButton, ClerkProvider, SignInButton } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import './globals.css';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Await the auth state directly on the server
+  const { userId } = await auth();
+
   return (
     <ClerkProvider>
       <html lang="en">
@@ -14,18 +18,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             
             <div className="flex items-center gap-4">
-              <SignedOut>
+              {!userId ? (
+                // Unauthenticated State
                 <div className="bg-orange-500 text-white px-5 py-2.5 rounded-full font-medium">
                   <SignInButton mode="modal" />
                 </div>
-              </SignedOut>
-              
-              <SignedIn>
-                <Link href="/upload" className="hidden md:block text-sm font-medium text-slate-600">
-                  Upload Recipe
-                </Link>
-                <UserButton />
-              </SignedIn>
+              ) : (
+                // Authenticated State
+                <>
+                  <Link href="/upload" className="hidden md:block text-sm font-medium text-slate-600">
+                    Upload Recipe
+                  </Link>
+                  <UserButton />
+                </>
+              )}
             </div>
           </nav>
           {children}
