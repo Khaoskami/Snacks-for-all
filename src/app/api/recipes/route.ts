@@ -1,9 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma'; // Adjust this import to your actual Prisma client location
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
-  // Await auth() to resolve the Promise and extract userId
   const { userId } = await auth();
 
   if (!userId) {
@@ -18,7 +17,7 @@ export async function POST(req: Request) {
       title,
       ingredients,
       instructions,
-      userId, // Satisfies the updated schema relation
+      userId,
     },
   });
 
