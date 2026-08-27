@@ -9,8 +9,18 @@ datasource db {
 
 model Recipe {
   id           String   @id @default(cuid())
+  userId       String   // Will store the Clerk User ID
   title        String
   ingredients  String[] 
   instructions String
   createdAt    DateTime @default(now())
+}
+
+model SavedRecipe {
+  id          String   @id @default(cuid())
+  userId      String   
+  externalId  String   // The ID from the external API
+  title       String
+  image       String?
+  createdAt   DateTime @default(now())
 }
