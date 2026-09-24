@@ -4,6 +4,7 @@ const isProtectedRoute = createRouteMatcher([
   '/upload(.*)',
   '/account(.*)',
   '/api/recipes(.*)',
+  '/api/saved-recipes(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

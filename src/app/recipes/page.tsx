@@ -1,7 +1,8 @@
- "use client";
+"use client";
 
 import { useState } from 'react';
 import Link from 'next/link';
+import RecipeCard from './RecipeCard';
 
 type Recipe = {
   id: string;
@@ -9,6 +10,8 @@ type Recipe = {
   ingredients: string[];
   instructions: string;
   image?: string | null;
+  source?: string;
+  savable?: boolean;
 };
 
 export default function RecipesPage() {
@@ -16,6 +19,7 @@ export default function RecipesPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [error, setError] = useState('');
 
   const searchRecipes = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -24,6 +28,7 @@ export default function RecipesPage() {
 
     setLoading(true);
     setHasSearched(true);
+    setError('');
 
     try {
       const res = await fetch(`/api/recipes?ingredients=${encodeURIComponent(query)}`);
@@ -31,6 +36,7 @@ export default function RecipesPage() {
       setRecipes(await res.json());
     } catch {
       setRecipes([]);
+      setError('Recipe search is temporarily unavailable. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -44,50 +50,23 @@ export default function RecipesPage() {
         <p className="mt-3 text-slate-500">Search for one or more ingredients you have available.</p>
 
         <form onSubmit={searchRecipes} className="mt-8 flex gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="e.g. chicken, garlic"
-            className="min-w-0 flex-1 px-4 py-3 rounded-xl outline-none"
-            aria-label="Search ingredients"
-          />
-          <button disabled={loading} className="px-5 py-3 rounded-xl bg-orange-500 text-white font-semibold disabled:opacity-50">
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="e.g. chicken, garlic" className="min-w-0 flex-1 px-4 py-3 rounded-xl outline-none" aria-label="Search ingredients" />
+          <button type="submit" disabled={loading || !search.trim()} className="px-5 py-3 rounded-xl bg-orange-500 text-white font-semibold disabled:opacity-50">
             {loading ? 'Searching…' : 'Search'}
           </button>
         </form>
       </div>
 
+      {error && <p className="text-center text-red-600 py-4">{error}</p>}
       {loading && <p className="text-center text-slate-500 py-10">Finding recipes…</p>}
 
       {!loading && recipes.length > 0 && (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recipes.map((recipe) => (
-            <article key={recipe.id} className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-              {recipe.image ? (
-                <img src={recipe.image} alt="" className="w-full h-52 object-cover" />
-              ) : (
-                <div className="h-52 bg-orange-50 flex items-center justify-center text-5xl">🍲</div>
-              )}
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-slate-900">{recipe.title}</h2>
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {recipe.ingredients.slice(0, 8).map((ingredient, index) => (
-                    <span key={`${ingredient}-${index}`} className="text-xs px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">
-                      {ingredient}
-                    </span>
-                  ))}
-                </div>
-                <details className="mt-5">
-                  <summary className="cursor-pointer font-semibold text-orange-600">View instructions</summary>
-                  <p className="mt-3 text-sm text-slate-600 whitespace-pre-line">{recipe.instructions}</p>
-                </details>
-              </div>
-            </article>
-          ))}
+          {recipes.map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} />)}
         </div>
       )}
 
-      {hasSearched && !loading && recipes.length === 0 && (
+      {hasSearched && !loading && recipes.length === 0 && !error && (
         <div className="text-center py-16 bg-white rounded-3xl border border-slate-200">
           <p className="text-3xl">🍳</p>
           <h2 className="mt-3 text-xl font-bold">No recipes found</h2>
@@ -95,9 +74,11 @@ export default function RecipesPage() {
         </div>
       )}
 
-      {!hasSearched && (
-        <div className="text-center py-12 text-slate-400">Start with an ingredient you already have.</div>
-      )}
+      {!hasSearched && <div className="text-center py-12 text-slate-400">Start with an ingredient you already have.</div>}
+
+      <div className="mt-10 text-center">
+        <Link href="/upload" className="inline-block px-5 py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600">Add your own recipe</Link>
+      </div>
     </main>
   );
 }
