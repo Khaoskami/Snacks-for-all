@@ -40,7 +40,7 @@ export default function UploadRecipe() {
       }
 
       // Route back to the home page and force a server refresh to update state
-      router.push('/');
+      router.push('/account');
       router.refresh();
     } catch (err) {
       setError('Server error during upload. Check your Railway logs.');
@@ -51,8 +51,8 @@ export default function UploadRecipe() {
   return (
     <main className="min-h-screen bg-[#faf9f6] text-slate-800 font-sans p-6 md:p-12">
       <div className="max-w-2xl mx-auto">
-        <Link href="/" className="text-sm font-medium text-slate-500 hover:text-orange-500 mb-8 inline-block transition-colors">
-          ← Back to Search
+        <Link href="/recipes" className="text-sm font-medium text-slate-500 hover:text-orange-500 mb-8 inline-block transition-colors">
+          ← Back to Recipes
         </Link>
 
         <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100">

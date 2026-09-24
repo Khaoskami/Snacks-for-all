@@ -1,16 +1,17 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 const isProtectedRoute = createRouteMatcher([
-  '/upload(.*)', 
-  '/api/recipes(.*)'
+  '/upload(.*)',
+  '/account(.*)',
+  '/api/recipes(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     const { userId, redirectToSignIn } = await auth();
-    
-    // Manually enforce protection instead of using .protect()
-    if (!userId) {
+    const isRecipeSearch = req.method === 'GET' && req.nextUrl.pathname.startsWith('/api/recipes');
+
+    if (!userId && !isRecipeSearch) {
       return redirectToSignIn();
     }
   }
