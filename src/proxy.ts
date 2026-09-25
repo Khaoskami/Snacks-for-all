@@ -1,6 +1,22 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default clerkMiddleware();
+const isProtectedRoute = createRouteMatcher([
+  '/upload(.*)',
+  '/account(.*)',
+  '/api/recipes(.*)',
+  '/api/saved-recipes(.*)',
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+    const { userId, redirectToSignIn } = await auth();
+    const isRecipeSearch = req.method === 'GET' && req.nextUrl.pathname.startsWith('/api/recipes');
+
+    if (!userId && !isRecipeSearch) {
+      return redirectToSignIn();
+    }
+  }
+});
 
 export const config = {
   matcher: [
