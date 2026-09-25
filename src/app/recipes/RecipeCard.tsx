@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 
-type Recipe = {
+ type Recipe = {
   id: string;
   title: string;
   ingredients: string[];
   instructions: string;
   image?: string | null;
   source?: string;
+  sourceUrl?: string;
   savable?: boolean;
 };
 
@@ -27,7 +28,7 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
         body: JSON.stringify({ externalId: recipe.id, title: recipe.title, image: recipe.image }),
       });
       if (response.status === 401) {
-        window.location.href = '/sign-in';
+        window.location.href = '/sign-in?redirect_url=/recipes';
         return;
       }
       if (!response.ok) throw new Error();
@@ -55,13 +56,22 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
             </button>
           )}
         </div>
+
         <div className="flex flex-wrap gap-2 mt-4">
           {recipe.ingredients.slice(0, 8).map((ingredient, index) => <span key={`${ingredient}-${index}`} className="text-xs px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">{ingredient}</span>)}
         </div>
+
         <details className="mt-5">
           <summary className="cursor-pointer font-semibold text-orange-600">View instructions</summary>
           <p className="mt-3 text-sm text-slate-600 whitespace-pre-line">{recipe.instructions}</p>
         </details>
+
+        {recipe.sourceUrl && (
+          <a href={recipe.sourceUrl} target="_blank" rel="noreferrer" className="inline-block mt-5 text-sm font-semibold text-orange-600 hover:text-orange-700">
+            Open original recipe ↗
+          </a>
+        )}
+
         {message && <p className="mt-3 text-xs text-slate-500">{message}</p>}
       </div>
     </article>
