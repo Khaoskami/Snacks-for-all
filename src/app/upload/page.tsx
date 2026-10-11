@@ -43,7 +43,7 @@ export default function UploadRecipe() {
       router.push('/account');
       router.refresh();
     } catch (err) {
-      setError('Server error during upload. Check your Railway logs.');
+      setError('Could not save your recipe. Please try again shortly.');
       setLoading(false);
     }
   };
@@ -55,7 +55,7 @@ export default function UploadRecipe() {
           ← Back to Recipes
         </Link>
 
-        <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100">
+        <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xs border border-slate-100">
           <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Upload a Recipe</h1>
           <p className="text-slate-500 mb-8 font-medium">Save your custom meals to your personal vault.</p>
 
@@ -74,7 +74,7 @@ export default function UploadRecipe() {
                 name="title"
                 required
                 placeholder="e.g. Grandma's Garlic Chicken"
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all"
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-hidden focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all"
               />
             </div>
 
@@ -86,7 +86,7 @@ export default function UploadRecipe() {
                 name="ingredients"
                 required
                 placeholder="e.g. Chicken breast, Garlic, Olive oil, Salt"
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all"
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-hidden focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all"
               />
             </div>
 
@@ -98,7 +98,7 @@ export default function UploadRecipe() {
                 required
                 rows={6}
                 placeholder="Step 1: Preheat oven to 400 degrees..."
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all resize-none"
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-hidden focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all resize-none"
               ></textarea>
             </div>
 

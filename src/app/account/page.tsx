@@ -36,7 +36,7 @@ export default async function AccountPage() {
     ]);
   } catch (error) {
     console.error('Account load error:', error);
-    databaseError = 'Your account is connected, but the recipe database is currently unavailable. Check DATABASE_URL in Railway.';
+    databaseError = 'Your recipes are temporarily unavailable. Please try again shortly.';
   }
 
   const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || 'Food lover';

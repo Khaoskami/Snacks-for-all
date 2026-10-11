@@ -42,7 +42,7 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
   };
 
   return (
-    <article className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+    <article className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
       {recipe.image ? <img src={recipe.image} alt={recipe.title} className="w-full h-52 object-cover" /> : <div className="h-52 bg-orange-50 flex items-center justify-center text-5xl">🍲</div>}
       <div className="p-6">
         <div className="flex justify-between gap-4 items-start">

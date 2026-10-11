@@ -18,7 +18,7 @@ export default async function Home() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <Link href="/donation" className="min-h-56 rounded-[2rem] bg-white border border-slate-200 p-8 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between">
+          <Link href="/donation" className="min-h-56 rounded-[2rem] bg-white border border-slate-200 p-8 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between">
             <span className="text-5xl">❤</span>
             <div>
               <h2 className="text-2xl font-bold text-slate-900">Support</h2>
@@ -26,7 +26,7 @@ export default async function Home() {
             </div>
           </Link>
 
-          <Link href="/recipes" className="min-h-56 rounded-[2rem] bg-white border border-slate-200 p-8 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between">
+          <Link href="/recipes" className="min-h-56 rounded-[2rem] bg-white border border-slate-200 p-8 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between">
             <span className="text-5xl">🍲</span>
             <div>
               <h2 className="text-2xl font-bold text-slate-900">Recipes</h2>
@@ -34,7 +34,7 @@ export default async function Home() {
             </div>
           </Link>
 
-          <Link href="/shop" className="min-h-56 rounded-[2rem] bg-white border border-slate-200 p-8 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between">
+          <Link href="/shop" className="min-h-56 rounded-[2rem] bg-white border border-slate-200 p-8 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between">
             <span className="text-5xl">🛒</span>
             <div>
               <h2 className="text-2xl font-bold text-slate-900">Food Ordering</h2>

@@ -83,13 +83,13 @@ export default function ShopPage() {
       <div className="py-8">
         <Link href="/" className="text-sm text-slate-500 hover:text-orange-500">← Home</Link>
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mt-5">Food shopping</h1>
-        <p className="mt-3 text-slate-500 max-w-2xl">Search real food products, build a basket, and use the order-request button when your ordering email is configured.</p>
+        <p className="mt-3 text-slate-500 max-w-2xl">Search real food products, build a basket, and send an order request when ordering is available.</p>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
         <section>
-          <form onSubmit={searchProducts} className="flex gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search food products e.g. oats" className="min-w-0 flex-1 px-4 py-3 rounded-xl outline-none" aria-label="Search food products" />
+          <form onSubmit={searchProducts} className="flex gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs">
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search food products e.g. oats" className="min-w-0 flex-1 px-4 py-3 rounded-xl outline-hidden" aria-label="Search food products" />
             <button type="submit" disabled={loading || !search.trim()} className="px-5 py-3 rounded-xl bg-orange-500 text-white font-semibold disabled:opacity-50">{loading ? 'Searching…' : 'Search'}</button>
           </form>
 
@@ -141,7 +141,7 @@ export default function ShopPage() {
             {orderMailto ? (
               <a href={orderMailto} className="text-center px-4 py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600">Send order request</a>
             ) : (
-              <p className="text-xs text-slate-500 bg-orange-50 rounded-xl p-3">Add NEXT_PUBLIC_ORDER_EMAIL in Railway to enable the order-request button.</p>
+              <p className="text-xs text-slate-500 bg-orange-50 rounded-xl p-3">{orderEmail ? 'Add an item to your basket to request an order.' : 'Order requests are not available yet.'}</p>
             )}
             <button type="button" onClick={clearCart} disabled={cart.length === 0} className="px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 disabled:opacity-40">Clear basket</button>
           </div>

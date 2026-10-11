@@ -1,10 +1,10 @@
 import { ClerkProvider, UserButton, SignInButton } from '@clerk/nextjs';
-import { auth } from '@clerk/nextjs/server';
+import { getAccess } from '@/lib/access';
 import Link from 'next/link';
 import './globals.css';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { userId } = await auth();
+  const { userId, isAdmin } = await getAccess();
 
   return (
     <html lang="en">
@@ -21,6 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {userId ? (
                 <>
                   <Link href="/account" className="text-sm font-medium text-slate-600 hover:text-orange-500">My account</Link>
+                  {isAdmin && <Link href="/admin" className="text-sm font-semibold text-orange-600">Admin</Link>}
                   <UserButton />
                 </>
               ) : (

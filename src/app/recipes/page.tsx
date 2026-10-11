@@ -21,6 +21,7 @@ export default function RecipesPage() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState('');
+  const [warning, setWarning] = useState('');
 
   const runSearch = async (query: string, event?: React.FormEvent) => {
     event?.preventDefault();
@@ -30,14 +31,17 @@ export default function RecipesPage() {
     setLoading(true);
     setHasSearched(true);
     setError('');
+    setWarning('');
 
     try {
       const res = await fetch(`/api/recipes?q=${encodeURIComponent(cleanQuery)}`);
-      if (!res.ok) throw new Error('Search failed');
-      setRecipes(await res.json());
-    } catch {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Search failed');
+      setWarning(res.headers.get('X-Recipe-Warning') || '');
+      setRecipes(data);
+    } catch (error) {
       setRecipes([]);
-      setError('Recipe search is temporarily unavailable. Please try again.');
+      setError(error instanceof Error ? error.message : 'Recipe search is temporarily unavailable. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -47,6 +51,7 @@ export default function RecipesPage() {
     setLoading(true);
     setHasSearched(true);
     setError('');
+    setWarning('');
     setSearch('');
 
     try {
@@ -66,14 +71,15 @@ export default function RecipesPage() {
       <div className="max-w-3xl mx-auto text-center py-8 md:py-12">
         <Link href="/" className="text-sm text-slate-500 hover:text-orange-500">← Home</Link>
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mt-5">Find a recipe</h1>
-        <p className="mt-3 text-slate-500">Search by recipe name, ingredient, or a combination of ingredients.</p>
+        <p className="mt-3 text-slate-500">Search by name, category, or up to five ingredients separated by commas. Multiple ingredients must all match.</p>
 
-        <form onSubmit={(event) => runSearch(search, event)} className="mt-8 flex gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+        <form onSubmit={(event) => runSearch(search, event)} className="mt-8 flex gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs">
           <input
+            maxLength={200}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="e.g. lasagne, chicken, garlic"
-            className="min-w-0 flex-1 px-4 py-3 rounded-xl outline-none"
+            className="min-w-0 flex-1 px-4 py-3 rounded-xl outline-hidden"
             aria-label="Search recipes or ingredients"
           />
           <button type="submit" disabled={loading || !search.trim()} className="px-5 py-3 rounded-xl bg-orange-500 text-white font-semibold disabled:opacity-50">
@@ -83,16 +89,17 @@ export default function RecipesPage() {
 
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {['chicken', 'pasta', 'breakfast'].map((term) => (
-            <button key={term} type="button" onClick={() => { setSearch(term); void runSearch(term); }} className="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-sm text-slate-600 hover:border-orange-300 hover:text-orange-600">
+            <button key={term} type="button" disabled={loading} onClick={() => { setSearch(term); void runSearch(term); }} className="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-sm text-slate-600 hover:border-orange-300 hover:text-orange-600">
               {term}
             </button>
           ))}
-          <button type="button" onClick={randomRecipe} className="px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-sm text-orange-700 hover:bg-orange-100">
+          <button type="button" disabled={loading} onClick={randomRecipe} className="px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-sm text-orange-700 hover:bg-orange-100">
             Surprise me
           </button>
         </div>
       </div>
 
+      {warning && <p role="status" className="text-center text-amber-700 py-4">{warning}</p>}
       {error && <p className="text-center text-red-600 py-4">{error}</p>}
       {loading && <p className="text-center text-slate-500 py-10">Finding recipes…</p>}
 
