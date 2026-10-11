@@ -19,10 +19,10 @@ export default async function AdminPage() {
         <p>Database: <strong>{status.databaseAvailable ? 'Connected' : 'Unavailable — check DATABASE_URL and database schema in Railway.'}</strong></p>
         <p>Clerk keys: {status.configuration.clerk ? 'Configured' : 'Missing'}</p>
         <p>Recipe provider: TheMealDB ({status.configuration.recipeKey} key)</p>
-        <p>Donations: {status.configuration.donations ? 'Configured' : 'Add NEXT_PUBLIC_PAYPAL_DONATION_URL in Railway.'}</p>
+        <p>Donations: {status.configuration.donations}</p>
         <p>Order requests: {status.configuration.orders ? 'Configured' : 'Add NEXT_PUBLIC_ORDER_EMAIL in Railway.'}</p>
       </div>
-      <p className="text-sm text-slate-500 mt-6">A configured variable does not verify that an external payment or email destination works. Test those links before launch.</p>
+      <p className="text-sm text-slate-500 mt-6">Bank transfer details are displayed publicly on the donation page. Payments are made through the donor’s bank and are not automatically confirmed by this website.</p>
     </main>
   );
 }

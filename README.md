@@ -2,13 +2,45 @@
 
 Next.js + Clerk + Prisma/PostgreSQL, deployed from GitHub to Railway.
 
-## Replacement update: middleware/proxy deployment conflict
+## Clean replacement: remove old code from GitHub too
 
-This package includes an automatic compatibility step in `npm run build`, `npm run dev`, and `npm run typecheck`. It moves old root-level or `src/` middleware files (`.ts`, `.tsx`, `.js`, `.jsx`) into `.legacy-build-backups/` with a `.disabled` suffix before Next.js runs. It first checks that the supplied `src/proxy.ts` exists and never removes it. Old file contents are preserved in that build's filesystem. Backups on Railway are temporary and are not committed to GitHub.
+Use the included clean installer when replacing an existing project. Uploading a ZIP's files through GitHub only overwrites matching filenames and leaves obsolete files behind.
 
-Upload **all extracted project contents** into the existing repository's application folder, including `scripts/prepare-build.mjs`, `package.json` and `railway.json`. Commit to the Railway-connected branch. Keep the Railway build command as `npm run build`. You do not need to manually delete the old middleware file for deployment to succeed.
+1. Extract this ZIP **outside** your existing local Git clone. The target clone must be the application repository, with `package.json` at its root. Save or commit any in-progress work first.
+2. From the extracted new project directory, run:
 
-A ZIP upload does not literally delete absent files from GitHub. This compatibility step handles the middleware conflict shown in your deployment log; it does not delete unrelated old files. For an exact repository replacement, replace the tracked application files using Git while preserving your repository history and deployment settings.
+   ```sh
+   node scripts/replace-project.mjs "/path/to/existing-git-clone"
+   ```
+
+   Windows example:
+
+   ```powershell
+   node scripts/replace-project.mjs "C:\Projects\Snacks-for-all"
+   ```
+
+3. The installer validates and stages the complete release, then moves **all old project entries** (including obsolete source, configuration, workflows and dependencies) to a sibling backup directory. It installs only files listed in `release-files.json`. It preserves `.git` and local `.env` / `.env.*` secrets; `.env.example` is replaced. It does not connect to or change the database. This is intended for the dedicated app repository, not a monorepo containing other projects. Recover any custom CI configuration you still need from the backup after reviewing it.
+4. In the target clone, inspect `git status`, then run `git add -A`, commit, and push to Railway's connected branch. **The deletions must be included**, which `git add -A` handles. The script does not commit, push, or deploy for you.
+5. Keep Railway's build command as `npm run build`. Existing Clerk/database service variables remain in Railway. The old donation-provider variable can be removed; it is no longer read.
+
+If you only use GitHub in a browser, remove the old application files/folders from the repository first, then upload all extracted contents to the same application root. Do not delete the repository or its Railway service. The supplied ZIP is the entire app, not a patch.
+
+The build also retains a compatibility step that moves legacy middleware entrypoints aside before Next.js runs. This handles the previous middleware/proxy conflict, but a clean repository replacement is still required to remove all other obsolete code.
+
+## FNB donations
+
+The donation page now displays bank-transfer details with per-field and copy-all buttons:
+
+| Field | Value |
+| --- | --- |
+| Bank | FNB |
+| Account holder | Snacks for all |
+| Account number | 63227223318 |
+| Account type | GOLD BUSINESS ACCOUNT |
+| Branch code | 250655 |
+| Reference | Donation |
+
+These are the exact public details supplied by the owner. The website does not verify account ownership, initiate transfers, collect banking credentials or confirm incoming payments. Donors complete transfers in their banking app. If clipboard access is unavailable, details remain selectable for manual copying. The bank details are maintained in `src/lib/donation-details.ts`; no donation environment variable is required.
 
 ## Access rules
 
@@ -17,13 +49,13 @@ A ZIP upload does not literally delete absent files from GitHub. This compatibil
 - `/admin` and `/api/admin/status` check the role on the server before loading diagnostics. The navigation only shows Admin to the administrator. Signed-out API requests receive 401; ordinary users receive 403. Ordinary users visiting `/admin` receive a not-found page.
 - Ordinary users can search, upload their own private recipes, save external recipes and delete only their own records. Account queries are scoped to the authenticated Clerk user ID, including for the admin.
 - Public recipe search returns only external recipes. Previously uploaded recipes remain in their owner's account; they are no longer exposed through public search.
-- Deployment/setup instructions live in the admin dashboard and this README. Public pages show customer-facing availability messages. Public payment links and the public ordering email remain intentionally visible to customers.
+- Deployment/setup instructions live in the admin dashboard and this README. Public pages show customer-facing availability messages. The bank-transfer details and public ordering email remain intentionally visible to customers.
 
 The uploaded project contained no existing admin dashboard or separate admin CRUD features. This update adds a protected setup/status dashboard without inventing user-management powers or making personal recipe uploads admin-only.
 
 ## GitHub to Railway: deploy this update
 
-1. Extract the ZIP. Copy the **contents** of `Snacks-for-all-main/` into the root of your existing GitHub repository, replacing the matching files. Replace `tailwind.config.ts` with the supplied compatibility stub; styling is now configured in CSS. Include `package-lock.json`, `railway.json`, `.gitignore`, tests, and all new `src/lib` and `src/app/admin` files. Do not upload the ZIP itself or an extra nested project folder as the application root.
+1. Follow the clean replacement procedure above to replace the application repository. Replace `tailwind.config.ts` with the supplied compatibility stub; styling is now configured in CSS. Include `package-lock.json`, `railway.json`, `.gitignore`, tests, and all new `src/lib` and `src/app/admin` files. Do not upload the ZIP itself or an extra nested project folder as the application root.
 2. Commit and push to the branch connected to Railway. If your project intentionally uses a subfolder, set Railway's service root directory to that folder.
 3. Use Node **22.12+** (Node 24 LTS is suitable). `package.json` declares the minimum; the lockfile makes dependency installation repeatable. Allow dev dependencies during the build because Prisma, TypeScript and Tailwind are build tools.
 4. Configure the service variables listed below, then redeploy. `NEXT_PUBLIC_*` values are embedded at build time and require a rebuild when changed.
@@ -43,7 +75,6 @@ The uploaded project contained no existing admin dashboard or separate admin CRU
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Recommended | `/sign-up` |
 | `THEMEALDB_API_KEY` | Optional | Defaults to `1`; configure an appropriate production key when required |
 | `OPEN_FOOD_FACTS_USER_AGENT` | Recommended | E.g. `SnacksForAll/1.0 (contact: your-public-support-email)` |
-| `NEXT_PUBLIC_PAYPAL_DONATION_URL` | Optional | Real PayPal donation URL; leave unset until ready |
 | `NEXT_PUBLIC_ORDER_EMAIL` | Optional | Public order-request destination; leave unset until ready |
 
 There is no `ADMIN_EMAIL` environment override: the sole admin email is the requested value in the server's access policy.
@@ -73,7 +104,7 @@ Edamam was also reviewed; its listed entry recipe-search plan is paid and third-
 3. Sign in with the verified primary email `asadtitus@gmail.com`: Admin link and dashboard are available.
 4. Create distinct recipes in two accounts. Each account must show only its own records. Public recipe search must not return either private upload.
 5. Search `chicken`, `chicken, garlic`, `breakfast`, and use Surprise me. Save and remove a recipe using a real account.
-6. Check database status on `/admin`, then test actual donation/order links if configured.
+6. Check database status on `/admin`, verify the displayed FNB details and copy buttons, then test the order-request link if configured.
 
 The public health endpoint is a process liveness check only; it does not expose configuration or verify the database or Clerk service.
 
@@ -119,7 +150,7 @@ Migration reference: https://tailwindcss.com/docs/upgrade-guide
 
 ## Verification for this update
 
-- 31 automated tests passed (admin page/API access, verified-email policy, account isolation, forged owner IDs, anonymous writes, provider errors, query validation and unsafe saved image schemes).
+- 32 automated tests passed (admin page/API access, verified-email policy, account isolation, forged owner IDs, anonymous writes, provider errors, query validation and unsafe saved image schemes).
 - Separate opt-in live test passed for `chicken`, `chicken, garlic`, `breakfast` and random meals.
 - Production build and TypeScript checks passed.
 - Full `npm audit` reported zero known vulnerabilities at verification time.

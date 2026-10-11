@@ -15,7 +15,7 @@ export async function getAdminStatus() {
     configuration: {
       database: Boolean(process.env.DATABASE_URL),
       clerk: Boolean(process.env.CLERK_SECRET_KEY && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY),
-      donations: Boolean(process.env.NEXT_PUBLIC_PAYPAL_DONATION_URL),
+      donations: 'FNB bank transfer',
       orders: Boolean(process.env.NEXT_PUBLIC_ORDER_EMAIL),
       recipeKey: process.env.THEMEALDB_API_KEY && process.env.THEMEALDB_API_KEY !== '1' ? 'custom' : 'development',
     },
