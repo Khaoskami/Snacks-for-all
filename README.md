@@ -2,6 +2,14 @@
 
 Next.js + Clerk + Prisma/PostgreSQL, deployed from GitHub to Railway.
 
+## Replacement update: middleware/proxy deployment conflict
+
+This package includes an automatic compatibility step in `npm run build`, `npm run dev`, and `npm run typecheck`. It moves old root-level or `src/` middleware files (`.ts`, `.tsx`, `.js`, `.jsx`) into `.legacy-build-backups/` with a `.disabled` suffix before Next.js runs. It first checks that the supplied `src/proxy.ts` exists and never removes it. Old file contents are preserved in that build's filesystem. Backups on Railway are temporary and are not committed to GitHub.
+
+Upload **all extracted project contents** into the existing repository's application folder, including `scripts/prepare-build.mjs`, `package.json` and `railway.json`. Commit to the Railway-connected branch. Keep the Railway build command as `npm run build`. You do not need to manually delete the old middleware file for deployment to succeed.
+
+A ZIP upload does not literally delete absent files from GitHub. This compatibility step handles the middleware conflict shown in your deployment log; it does not delete unrelated old files. For an exact repository replacement, replace the tracked application files using Git while preserving your repository history and deployment settings.
+
 ## Access rules
 
 - **Admin:** only the authenticated Clerk account whose **verified primary email** is `asadtitus@gmail.com` (case-insensitive exact match).
@@ -111,7 +119,7 @@ Migration reference: https://tailwindcss.com/docs/upgrade-guide
 
 ## Verification for this update
 
-- 29 automated tests passed (admin page/API access, verified-email policy, account isolation, forged owner IDs, anonymous writes, provider errors, query validation and unsafe saved image schemes).
+- 31 automated tests passed (admin page/API access, verified-email policy, account isolation, forged owner IDs, anonymous writes, provider errors, query validation and unsafe saved image schemes).
 - Separate opt-in live test passed for `chicken`, `chicken, garlic`, `breakfast` and random meals.
 - Production build and TypeScript checks passed.
 - Full `npm audit` reported zero known vulnerabilities at verification time.
